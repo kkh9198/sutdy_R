@@ -1,0 +1,178 @@
+############ 연습해보자 fi, ifelse
+
+# 문제 1
+# a의 평균이 15이상이면 "평균이상" 아니면 "평균미만"으로 출력하시오
+
+a <- seq(1,30,4)
+a
+if( mean(a) >=15 ){
+  "평균이상"}else{
+    "평균미만"
+  }
+
+# 문제 2
+# if , else if , else를 사용해서 tmep 조건을 만드시오
+# 0이하면 freezing, 10이하면 cold, 20이하면 cool, 30이하면 warm, 그외는 hot이 출력되게 하시오
+
+temp <- 25
+
+if (temp<=0){
+  "freezing" }else if(temp<=10){
+    "cold" }else if (temp<=20){
+      "cool"} else if (temp<=30){
+        "warm" }else{
+          "hot"
+        }
+
+
+# 문제 2_1
+temp <-c(5,20,-6,37,24,13)
+# 문제 2번의 값을 ifelse 로 바꿔서 값을 변경하시오
+
+ifelse(temp<=0,"freezing",
+       ifelse(temp<=10,"cold",
+              ifelse(temp<=20,"cool",
+                     ifelse(temp<=30,"warm","hot"))))
+
+# 문제 3
+# - ifelse 를 사용해서 iris의 Sepal.Length가 6보타 크면 1 작으면 0 변수 생성하시오
+# - new라는 변쉐 추가하고 new가 1인 Sepal.Width의 합을 구하시오
+data(iris)
+new<-ifelse(iris$Sepal.Length>=6,1,0)
+iris$new<-c(new)
+sum(iris[iris$new == 1 , "Sepal.Width"])
+
+
+############ 연습해보자 expand.grid
+wheel <- c("DD", "7", "BBB", "BB", "B", "C", "0")
+prob <- c("DD" = 0.03, "7" = 0.03, "BBB" = 0.06, 
+          "BB" = 0.1, "B" = 0.25, "C" = 0.01, "0" = 0.52)
+
+#1번 문제
+
+# wheel 과 같이 총 7개의 경우의 수가 있다.
+# 각 확률은 prob와 같고 총 3번의 시도를 했을 경우에 0.001보다 높은 경우의 수 개수는?
+# (3번 추출하며 각각 독립이다)
+# (DD, BBB, 7) 과 (DD , 7 , BBB)는 다른 경우의 수다
+th <- expand.grid(wheel, wheel, wheel)
+head(th)
+th$prob1<-prob[th$Var1]
+th$prob2<-prob[th$Var2]
+th$prob3<-prob[th$Var3]
+
+th$prob<-th$prob1*th$prob2*th$prob3
+
+nrow(th[th$prob>0.001,])
+
+
+#2번 문제
+# 동전을 3번 던질 떄 확률은 0.3과 0.7이다
+# 첫번째에 앞이나오고 그리고(&) 세번째에 뒤가 나올 확률을 구하시오
+
+coin <- c("앞","뒤")
+prob <- c("앞" = 0.3, "뒤" = 0.7)
+
+toss<-expand.grid(coin,coin,coin)
+head(toss)
+toss$prob1<-prob[toss$Var1]
+toss$prob2<-prob[toss$Var2]
+toss$prob3<-prob[toss$Var3]
+toss$prob<-toss$prob1*toss$prob2*toss$prob3
+sum(toss[toss$Var1 == "앞" & toss$Var3 =="뒤", "prob"])
+
+#####################################
+#####################################
+
+
+############ 연습해보자 for문
+#1번 문제
+sum <- 0
+# for문을 사용해서 1부터 100까지의 누적합을 구하시오
+
+for (i in 1:100){
+  sum<-sum+i
+}
+sum
+
+
+#2번 문제
+sum2 <- 0
+sample(1:6,1)
+
+# for문을 사용해서 위의 주사위 20번 던진 누적 합을 구하시오
+
+for (i in 1:20 ){
+  sum2<- sum2 + (sample(1:6,1))
+}
+
+value
+sum2
+i<-seq(1:9,1)
+############ 연습해보자 for, while 문
+
+#1번 문제 구구단 만들어보기
+# 2단부터 9단까지 출력해보기
+
+#ex)
+# 2 4 6 8 10 12 14 16 18
+# 3 6 9 12 ....
+# .....
+# 9 18 27 36 ....
+
+
+#1_1 for문
+#seq(값 , by = 차이, length.out = 길이)
+i=2
+for (i in 2:9){
+  print(seq(i,i*9,i))
+}
+
+#1_2 while문
+#while문
+i<-2
+
+while(i<=9){
+  print(seq (i,i*9,i))
+  i<-i+1
+}
+  
+
+############ 연습해보자 function
+
+#1 
+# 성적을 입력했을경우 40점 이하는 "C", 70점 이하는 "B" 
+# 71점 이상은 "A"를 출력하는 function을 만드시오
+
+abc<-function(x){
+  if(x<40){
+    print("C")
+  }else if(x<=70) {
+    print("B")
+  }else{
+    print("A")
+  }
+}
+abc(0)
+
+############ 연습해보자 apply 종류
+
+#문제 1
+data(iris)
+# iris에서 각 행바다(1~4열)의 분산 열을 추가하시오 (var)
+
+iris$Var<-apply(iris[,1:4],1, var)
+
+#문제 2
+# function을 활용해서 iris[,1:4]의 모든 값들은 제곱하시오
+
+mul<-function(x){
+  return(x^2)
+}
+
+sapply(iris[,1:4],mul)
+
+#문제 3
+# iris에서 for문을 활용해서 숫자형(iris[,1:4]) 값을 Species별 평균을 구하시오
+# z변수에 저장
+
+  
