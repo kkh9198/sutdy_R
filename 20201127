@@ -1,0 +1,109 @@
+##2 (실습) 보험료 데이터 요약하기
+
+# 예제 데이터 불러오기 
+ins = read.csv('insurance.csv')
+
+head(ins)
+#1 데이터 ins에서 sex가 female인 관측치로 region별 관측치 수 계산
+ins%>%
+  filter(sex=='female')%>%
+  count(region)
+#summarise(num=n())
+#2 charges가 10000이상인 관측치 중에서 smoker별 평균 age 계산
+ins%>%
+  filter(charges>=10000)%>%
+  group_by(smoker)%>%
+  summarise(age_mean=mean(age))
+
+#3 age가 40 미만인 관측치 중에서 sex, smoker별 charges의 평균과 최댓값 계산   
+ins%>%
+  filter(age<40)%>%
+  group_by(sex,smoker)%>%
+  summarise(charges_maen=mean(charges),charges_max=max(charges))
+
+
+
+# 데이터를 csv파일로 저장하기
+# 위에서 작업한 내용 중 3번을 csv파일로 저장해보기
+
+
+
+########################################################################
+
+
+##3 (실습) 국민건강보험공단 데이터 요약
+
+# 국민건강보험공단 진료내역정보 
+## http://data.go.kr/dataset/15007115/fileData.do
+## 원본 데이터에서 외래 진료 건과 주요 변수만 선택
+
+
+load('NHIS.RData')
+
+View(NHIS)
+str(NHIS)
+head(NHIS)
+# IDV_ID  가입자일련번호
+# SEX  성별
+# AGE_GROUP  연령대코드
+# FORM_CD  서식코드
+# DSBJT_CD  진료과목코드 
+# MAIN_SICK  주상병코드 
+# VSCN  요양일수
+# RECN  입내원일수
+# EDEC_TRAMT  심결요양급여비용총액
+# EDEC_SBRDN_AMT  심결본인부담금
+
+
+# 성 / 연령대별 진료건수 계산  (진료건수 기준 내림차순 정렬)
+
+NHIS %>% 
+  group_by(SEX, AGE_GROUP) %>% 
+  summarise(n=length(SEX)) %>% 
+  arrange(desc(n))
+
+NHIS %>% 
+  dplyr::count(SEX, AGE_GROUP) %>% 
+  arrange(desc(n))
+
+
+# 성별/연령대별 환자 분포 확인
+## distinct() : 중복값 제거 
+
+
+NHIS %>%
+  dplyr::select(IDV_ID, SEX, AGE_GROUP) %>%
+  unique() %>%
+  dplyr::count(SEX, AGE_GROUP)
+
+
+############################ 연습 문제 ################################
+
+
+# 문제1
+# 성 / 연령대 / 진료과목별 환자수  계산  (환자수 기준 내림차순 정렬)
+
+
+
+
+
+NHIS %>%
+  group_by(SEX, AGE_GROUP,DSBJT_CD,IDV_ID)%>%
+  unique()%>%
+  count(SEX,AGE_GROUP,DSBJT_CD)%>%
+arrange(desc(n))
+
+
+NHIS %>%
+  dplyr::select(SEX, AGE_GROUP,DSBJT_CD, IDV_ID) %>%
+  unique() %>%
+  count(SEX, AGE_GROUP,DSBJT_CD) %>%
+  arrange(desc(n))
+# 문제2
+# 성별/연령대별 평균(요양일수/입내원일수/급여비용/본인부담금액) 계산 후 급여비용 내림차순으로 정렬
+
+NHIS%>%
+  group_by(SEX, AGE_GROUP)%>%
+  summarise(a1=mean(VSCN),m2=mean(RECN),m3=mean(EDEC_TRAMT),m4=mean(EDEC_SBRDN_AMT))%>%
+  arrange(desc(m3))
+  
