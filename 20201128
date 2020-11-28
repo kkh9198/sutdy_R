@@ -1,0 +1,168 @@
+########################### 연습문제 #############################
+
+##2 (실습) 보험료 데이터 요약하기
+
+# 예제 데이터 불러오기 
+ins = read.csv('insurance.csv')
+
+head(ins)
+#1 데이터 ins에서 sex가 female인 관측치로 region별 관측치 수 계산
+ins%>%
+  filter(sex=='female')%>%
+  count(region)
+#summarise(num=n())
+#2 charges가 10000이상인 관측치 중에서 smoker별 평균 age 계산
+ins%>%
+ filter(charges>=10000)%>%
+  group_by(smoker)%>%
+  summarise(a1=mean(age))
+
+#3 age가 40 미만인 관측치 중에서 sex, smoker별 charges의 평균과 최댓값 계산   
+aaa=ins%>%
+  filter(age<40)%>%
+  group_by(sex,smoker)%>%
+  summarise(mean=mean(charges),max=max(charges))
+  
+# 데이터를 csv파일로 저장하기
+# 위에서 작업한 내용 중 3번을 csv파일로 저장해보기
+write.csv(aaa,'aaa.csv')
+
+
+########################################################################
+
+
+##3 (실습) 국민건강보험공단 데이터 요약
+
+# 국민건강보험공단 진료내역정보 
+## http://data.go.kr/dataset/15007115/fileData.do
+## 원본 데이터에서 외래 진료 건과 주요 변수만 선택
+
+
+load('NHIS.RData')
+
+View(NHIS)
+str(NHIS)
+head(NHIS)
+# IDV_ID  가입자일련번호
+# SEX  성별
+# AGE_GROUP  연령대코드
+# FORM_CD  서식코드
+# DSBJT_CD  진료과목코드 
+# MAIN_SICK  주상병코드 
+# VSCN  요양일수
+# RECN  입내원일수
+# EDEC_TRAMT  심결요양급여비용총액
+# EDEC_SBRDN_AMT  심결본인부담금
+
+
+# 성 / 연령대별 진료건수 계산  (진료건수 기준 내림차순 정렬)
+NHIS%>%
+  group_by(SEX,AGE_GROUP)%>%
+  summarise(n=length(SEX))%>%
+  arrange(desc(n))
+
+# 성별/연령대별 환자 분포 확인
+## distinct() : 중복값 제거 
+
+
+
+
+
+############################ 연습 문제 ################################
+
+
+# 문제1
+# 성 / 연령대 / 진료과목별 환자수  계산  (환자수 기준 내림차순 정렬)
+head(NHIS)
+NHIS%>%
+  select(SEX,AGE_GROUP,DSBJT_CD,IDV_ID)%>%
+  unique()%>%
+  count(SEX,AGE_GROUP,DSBJT_CD)%>%
+  arrange(desc(n))
+
+
+# 문제2
+# 성별/연령대별 평균(요양일수/입내원일수/급여비용/본인부담금액) 계산 후 급여비용 내림차순으로 정렬
+NHIS%>%
+  select(SEX,AGE_GROUP,VSCN,RECN,EDEC_TRAMT,EDEC_SBRDN_AMT)%>%
+  group_by(SEX,AGE_GROUP)%>%
+  summarise(m_VSCN=mean(VSCN),m_RECN=mean(RECN),m_EDEC_TRAMT=mean(EDEC_TRAMT),m_EDEC_SBRDN_AMT=mean(EDEC_SBRDN_AMT))%>%
+  arrange(desc(m_EDEC_TRAMT))
+
+
+
+# 문제3
+# 성별/연령대별 3개 최고빈도 주상병코드
+## top_n(n=k, wt=기준변수) : 기준변수를 기준으로 상위 k개 관측치 선택
+## 주상병코드 조회 (MAIN_SICK)
+grp_NHIS=group_by(NHIS,SEX,AGE_GROUP)
+
+NHIS%>%
+  count(SEX,AGE_GROUP,MAIN_SICK)%>%
+  group_by(SEX,AGE_GROUP)%>%
+  top_n(3,n)%>%
+  arrange(SEX,AGE_GROUP,desc(n))
+
+
+###### mutate의 확장
+## 변수의 group별 비율을 아고싶다면??
+data(iris)
+head(iris)
+
+## 도전해보자
+## Species 별로 Sepal.Length의 비중을 아고싶다면??
+iris%>%
+  group_by(Species)%>%
+  mutate(sum=sum(Sepal.Length))%>%
+  mutate(prop=Sepal.Length/sum)%>%
+  select(Species,Sepal.Length,Species,prop)
+#ex) prop 열 추가하려면? 
+# m group   prop
+# 2   a     0.2
+# 3   a     0.3
+# 5   a     0.5
+# 1   b     0.2
+# 1   b     0.2
+# 3   b     0.6
+
+
+######################
+# 코드 작성
+
+
+
+######################
+
+
+
+###### mutate의 확장2
+## group별로 번호를 매기고 싶다면??
+
+
+#ex) prop 열 추가하려면? 
+# m group   prop
+# 2   a     1
+# 3   a     2
+# 5   a     3
+# 1   b     1
+# 1   b     2
+# 3   b     3
+
+
+
+
+# 도전해보자
+# iris 데이터에서 Species별 Sepal.Width가 3번쨰로 큰 값들의 합은?
+
+######################
+# 코드 작성
+iris%>%
+  arrange(Species,desc(Sepal.Width))%>%
+  group_by(Species)%>%
+  mutate(number=row_number())%>%
+  filter(number==3)%>%
+  data.frame
+
+
+
+######################
