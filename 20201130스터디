@@ -1,0 +1,26 @@
+NHIS%>%
+  count(SEX,AGE_GROUP,MAIN_SICK)%>%
+  group_by(SEX,AGE_GROUP)%>%
+  top_n(3,n)%>%
+  arrange(SEX,AGE_GROUP,desc(n))
+
+NHIS %>%
+  group_by(SEX,AGE_GROUP,MAIN_SICK) %>%
+  summarise(n=length(MAIN_SICK))%>%
+  top_n(3,n)%>%
+  arrange(SEX, AGE_GROUP,desc(n))
+--count = group_by + length
+# iris 데이터에서 Species별 Sepal.Width가 3번쨰로 큰 값들의 합은?
+
+######################
+
+# 코드 작성
+
+iris%>%
+  arrange(Species,desc(Sepal.Width))%>%
+  group_by(Species)%>%
+  mutate(number=row_number())%>%
+  filter(number==3)%>%
+  ungroup%>%
+  summarise(n=sum(Sepal.Width))
+  data.frame
