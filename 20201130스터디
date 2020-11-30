@@ -24,3 +24,18 @@ iris%>%
   ungroup%>%
   summarise(n=sum(Sepal.Width))
   data.frame
+
+## Species 별로 Sepal.Length의 비중을 아고싶다면??
+iris%>%
+  group_by(Species)%>%
+  mutate(sum=sum(Sepal.Length))%>%
+  mutate(prop=Sepal.Length/sum)%>%
+  select(Species,Sepal.Length,Species,prop)
+
+--현정님 
+iris %>%
+  mutate(All.sum=sum(Sepal.Length))%>%
+  group_by(Species, All.sum) %>%
+  summarise(sum=sum(Sepal.Length))%>%
+  mutate(prop=sum/All.sum)
+
