@@ -1,0 +1,44 @@
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+subway_2017 = read.xlsx('subway_1701_1709.xlsx')
+names(subway_2017)[6:25] <- paste0('H', substr(names(subway_2017)[6:25], 1, 2))
+head(subway_2017)
+
+head(kk)
+summary(kk)
+kk<-read.csv("chicken.csv",fileEncoding = "CP949")
+kk %>%
+  group_by(요일,성별)%>%
+  filter(연령대%in% c("30대","40대"))%>%
+  summarise(sum=sum(통화건수))%>%
+  arrange(desc(sum))%>%
+  ggplot(aes(x=요일,y=sum,fill=성별))+
+  geom_bar(stat="identity",position="dodge")+
+  scale_x_discrete(limits = c("월","화","수","목","금","토","일"))
+
+##여성이 가장 많은 주문 횟수를 기록한 시군구
+head(kk2)
+head(kk)
+kk2<-kk%>%
+  filter(성별=="여",요일%in%c("금","토","일"))%>%
+  select(성별,시군구,통화건수)%>%
+  group_by(성별,시군구)%>%
+  summarise(sum=sum(통화건수))%>%
+  arrange(desc(sum))%>%
+  filter(sum>=7000)%>%
+  ggplot(aes(x=시군구,y=sum,fill=시군구))+geom_bar(stat="identity")
+
+
+kk%>%
+  filter(성별=="여")%>%
+  group_by(성별,시군구)%>%
+  summarise(sum=sum(통화건수))%>%
+  arrange(desc(sum))%>%
+  filter(sum>=10000)
+kk2
+kk%>%
+  group_by(시군구)%>%
+  summarise(sum=sum(통화건수))%>%
+  arrange(desc(sum))
+kk2
